@@ -17,6 +17,11 @@ public class PlayerController : MonoSingleton<PlayerController>
         //animator = GetComponent<Animator>();
     }
 
+    void Update()
+    {
+        Move(InputManager.Instance.movement);
+    }
+
     public void Move(Vector2 direction)
     {
         rb.velocity = direction * player.moveSpeed * Time.deltaTime;

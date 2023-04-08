@@ -7,9 +7,11 @@ public class Enemy : MonoBehaviour
     /*Düşmanların özelliklerini tutan script. Player scripti ile benzer şekilde. Tek fark Attack kısmı için EnemyController scripti kullanılıyor.
     Player gibi farklı Weaponlara sahip olmayacağı için bunda direkt Controller üzerinden Attack fonksiyonunu çalıştırmak daha mantıklı geldi.*/
     public EnemyType enemyType; //Düşman tipini enum ile kontrol ediyoruz. Attack kısmında çok işimize yarayacak.
-    public float health;
-    public float damage;
+    public int health;
+    public int damage;
     public float attackSpeed;
+    public float attackDistance;
+    public float playerDetectionDistance;
     public float range;
     public float movementSpeed;
     private float lastAttackTime;
@@ -20,7 +22,7 @@ public class Enemy : MonoBehaviour
         player = Player.Instance;
     }
 
-    public void DecreaseHealth(float damage)
+    public void DecreaseHealth(int damage)
     {
         health -= damage;
         if (health <= 0)
