@@ -1,17 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class EnemyController : MonoBehaviour
 {
     //Düşmanların hareketlerini ve animasyonlarını kontrol eden script. Düşmanın Attack fonksiyonunu burada çağırıyoruz.
     Rigidbody2D rb;
-    public Enemy enemy;
+    [NonSerialized] public Enemy enemy;
     private Player player;
     private float distanceToPlayer;
     private bool isAttacking;
+    private Coroutine attackCoroutine = null;
+    private bool justCreated = true;
 
-    public void Start()
+    public void Awake()
     {
         player = Player.Instance;
         enemy = GetComponent<Enemy>();
@@ -20,22 +23,35 @@ public class EnemyController : MonoBehaviour
 
     public void Update()
     {
+        if (justCreated)
+        {
+            distanceToPlayer = Vector2.Distance(transform.position, GameManager.Instance.goToAfterSpawn.position);
+            if (distanceToPlayer <= 1)
+            {
+                justCreated = false;
+                return;
+            }
+            Move((GameManager.Instance.goToAfterSpawn.position - transform.position).normalized);
+            return;
+        }
+
         distanceToPlayer = Vector2.Distance(transform.position, player.transform.position);
 
-        if (distanceToPlayer < enemy.playerDetectionDistance && !isAttacking)
+        if (distanceToPlayer < enemy.playerDetectionDistance)
         {
-            //transform.position = Vector2.MoveTowards(this.transform.position, player.transform.position, enemy.movementSpeed * Time.deltaTime);
-            rb.velocity = (player.transform.position - transform.position).normalized * enemy.movementSpeed * Time.deltaTime;
-            if (distanceToPlayer <= enemy.attackDistance)
+            Move((player.transform.position - transform.position).normalized);
+            if (distanceToPlayer <= enemy.attackDistance && !isAttacking)
             {
                 isAttacking = true;
-                StartCoroutine(AttackPlayer());
+                attackCoroutine = StartCoroutine(AttackPlayer());
             }
-        }
-        else
-        {
-            isAttacking = false;
-            rb.velocity = Vector2.zero;
+            else if (distanceToPlayer > enemy.attackDistance && isAttacking)
+            {
+                isAttacking = false;
+                rb.velocity = Vector2.zero;
+                if (attackCoroutine != null)
+                    StopCoroutine(attackCoroutine);
+            }
         }
     }
 
@@ -51,5 +67,11 @@ public class EnemyController : MonoBehaviour
             player.RemoveHealth(enemy.damage);
             yield return new WaitForSeconds(enemy.attackSpeed);
         }
+    }
+
+    public void RestoreHealth()
+    {
+        enemy.health = 100;
+        justCreated = true;
     }
 }

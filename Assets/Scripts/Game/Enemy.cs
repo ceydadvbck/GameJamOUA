@@ -22,12 +22,13 @@ public class Enemy : MonoBehaviour
         player = Player.Instance;
     }
 
-    public void DecreaseHealth(int damage)
+    public void RemoveHealth(int damage)
     {
         health -= damage;
         if (health <= 0)
         {
-
+            health = 0;
+            GameManager.Instance.Push(gameObject);
         }
     }
 }

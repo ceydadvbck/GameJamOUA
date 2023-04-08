@@ -14,7 +14,7 @@ public class Weapon : MonoBehaviour
     public float projectileSpeed;
     public Ease attackEase; //Silahın animasyonu için kullanılacak ease.
     public float animationDuration; //Silahın animasyonu için kullanılacak süre. Silahın görünmesi ve kaybolması toplamı bu süre olacak.
-    private Transform[] weapons; /*Bu silahın animasyonu için child objeleri tutan değişken. Silahın animasyonu için 4 adet child obje oluşturulacak. Bunlar up, down, left, right olacak. Sırası aynen böyle olmalı.
+    public GameObject[] weapons; /*Bu silahın animasyonu için child objeleri tutan değişken. Silahın animasyonu için 4 adet child obje oluşturulacak. Bunlar up, down, left, right olacak. Sırası aynen böyle olmalı.
     Bu nesneleri parent içine alıp pivot değişikliği yapacağız bu sayede nesnenin scale edilme yönünü kontrol edeceğiz.*/
     private float lastAttackTime; //Son atak yapıldığı zamanı tutan değişken. Bu sayede belli bir zaman aralığı ile saldırı yapılmasını sağlayabiliriz.
     private Player player; //Bu player nesnesi, singleton yapıda olduğundan direkt Player.Instance ile çağırabiliriz.
@@ -24,11 +24,15 @@ public class Weapon : MonoBehaviour
     public void Start()
     {
         player = Player.Instance;
-        weapons = new Transform[transform.childCount];
-        for (int i = 0; i < transform.childCount; i++)
+        if (weaponType == WeaponType.Melee)
         {
-            weapons[i] = transform.GetChild(i);
-            weapons[i].localScale = Vector3.zero;
+            weapons = new GameObject[transform.childCount];
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                weapons[i] = transform.GetChild(i).gameObject;
+                weapons[i].transform.localScale = Vector3.zero;
+                weapons[i].SetActive(false);
+            }
         }
     }
 
@@ -46,49 +50,84 @@ public class Weapon : MonoBehaviour
 
     public void Attack(AttackDirection attackDirection)
     {
-        if (attackDirection == AttackDirection.Up)
+        if (weaponType == WeaponType.Melee)
         {
-            weapons[0].DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+            if (attackDirection == AttackDirection.Up)
             {
-                weapons[0].DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                weapons[0].SetActive(true);
+                weapons[0].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
                 {
-                    isAttacking = false;
-                    lastAttackTime = Time.time;
+                    weapons[0].transform.DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                    {
+                        isAttacking = false;
+                        lastAttackTime = Time.time;
+                        weapons[0].SetActive(false);
+                    });
                 });
-            });
+            }
+            else if (attackDirection == AttackDirection.Down)
+            {
+                weapons[1].SetActive(true);
+                weapons[1].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                {
+                    weapons[1].transform.DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                    {
+                        isAttacking = false;
+                        lastAttackTime = Time.time;
+                        weapons[1].SetActive(false);
+                    });
+                });
+            }
+            else if (attackDirection == AttackDirection.Left)
+            {
+                weapons[2].SetActive(true);
+                weapons[2].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                {
+                    weapons[2].transform.DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                    {
+                        isAttacking = false;
+                        lastAttackTime = Time.time;
+                        weapons[2].SetActive(false);
+                    });
+                });
+            }
+            else if (attackDirection == AttackDirection.Right)
+            {
+                weapons[3].SetActive(true);
+                weapons[3].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                {
+                    weapons[3].transform.DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                    {
+                        isAttacking = false;
+                        lastAttackTime = Time.time;
+                        weapons[3].SetActive(false);
+                    });
+                });
+            }
         }
-        else if (attackDirection == AttackDirection.Down)
+        else if (weaponType == WeaponType.Ranged)
         {
-            weapons[1].DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+            if (weapons.Length < 4)
+                return;
+
+            if (attackDirection == AttackDirection.Up)
             {
-                weapons[1].DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                {
-                    isAttacking = false;
-                    lastAttackTime = Time.time;
-                });
-            });
-        }
-        else if (attackDirection == AttackDirection.Left)
-        {
-            weapons[2].DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                GameObject.Instantiate(weapons[0], transform.position, Quaternion.identity).GetComponent<RangedWeapon>().SetNewAttack(this, Vector2.up, projectileSpeed, damage, range);
+            }
+            else if (attackDirection == AttackDirection.Down)
             {
-                weapons[2].DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                {
-                    isAttacking = false;
-                    lastAttackTime = Time.time;
-                });
-            });
-        }
-        else if (attackDirection == AttackDirection.Right)
-        {
-            weapons[3].DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                GameObject.Instantiate(weapons[1], transform.position, Quaternion.identity).GetComponent<RangedWeapon>().SetNewAttack(this, Vector2.down, projectileSpeed, damage, range);
+            }
+            else if (attackDirection == AttackDirection.Left)
             {
-                weapons[3].DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                {
-                    isAttacking = false;
-                    lastAttackTime = Time.time;
-                });
-            });
+                GameObject.Instantiate(weapons[2], transform.position, Quaternion.identity).GetComponent<RangedWeapon>().SetNewAttack(this, Vector2.left, projectileSpeed, damage, range);
+            }
+            else if (attackDirection == AttackDirection.Right)
+            {
+                GameObject.Instantiate(weapons[3], transform.position, Quaternion.identity).GetComponent<RangedWeapon>().SetNewAttack(this, Vector2.right, projectileSpeed, damage, range);
+            }
+            lastAttackTime = Time.time;
+            isAttacking = false;
         }
     }
 

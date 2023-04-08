@@ -28,8 +28,8 @@ public enum ItemType
 
 public enum WeaponType
 {
-    Sword,
-    Bow
+    Melee,
+    Ranged
 }
 
 public enum WeaponUpgradeType
