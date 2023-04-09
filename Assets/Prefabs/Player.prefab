@@ -171,6 +171,7 @@ MonoBehaviour:
   projectileSpeed: 0
   attackEase: 1
   animationDuration: 0.1
+  weapons: []
   isActivated: 1
   isAttacking: 0
 --- !u!1 &2718610380789651685
@@ -534,6 +535,7 @@ GameObject:
   - component: {fileID: 2718610381522856646}
   - component: {fileID: 2718610381522856647}
   - component: {fileID: 2718610381522856644}
+  - component: {fileID: 7705246710993391954}
   - component: {fileID: 2718610381522856643}
   - component: {fileID: 2718610381522856642}
   m_Layer: 0
@@ -661,8 +663,36 @@ MonoBehaviour:
   currentHealth: 100
   maxArmor: 100
   currentArmor: 0
-  coin: 0
+  dashAmount: 0
+  dashDistance: 0
+  dashCooldown: 0
+  dashCooldownTime: 0
+  dashDamage: 0
+  xpAmount: 0
+  maxXP: 0
+  specialRange: 0
+  specialDamage: 0
+  specialKnockback: 0
+  dashEffect: {fileID: 0}
+  currentWeapon: 0
   lastDirection: 0
+  lastAttackDirection: 0
+--- !u!114 &7705246710993391954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2718610381522856645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 454ae14aa35ab784f86c3630ed26d4f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  items:
+  - {fileID: 11400000, guid: d97958830e5385748a3e0448f13b3b9f, type: 2}
+  - {fileID: 11400000, guid: d97958830e5385748a3e0448f13b3b9f, type: 2}
+  - {fileID: 11400000, guid: d97958830e5385748a3e0448f13b3b9f, type: 2}
 --- !u!61 &2718610381522856643
 BoxCollider2D:
   m_ObjectHideFlags: 0

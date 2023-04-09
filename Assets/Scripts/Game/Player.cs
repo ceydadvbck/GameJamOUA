@@ -43,6 +43,7 @@ public class Player : MonoSingleton<Player>
 
     public void RemoveHealth(int amount)
     {
+        AddArmor(ref amount); //S (Passive item sistemi için eklenenler.)
         int tempHealth = currentHealth;
         currentHealth -= amount;
         if (currentHealth < 0)
@@ -56,8 +57,10 @@ public class Player : MonoSingleton<Player>
         }
     }
 
-    public void AddArmor(int amount)
+    public void AddArmor(ref int amount) //S (ref ekledim)
     {
+        amount -= currentArmor; //S
+        if (amount < 0) { amount = 0; } //S
         int tempArmor = currentArmor;
         currentArmor += amount;
         if (currentArmor > maxArmor)

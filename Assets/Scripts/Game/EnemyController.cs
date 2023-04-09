@@ -119,7 +119,7 @@ public class EnemyController : MonoBehaviour
         if (random <= chanceToDropArmor)
         {
             int armorReward = UnityEngine.Random.Range(minArmorReward, maxArmorReward);
-            player.AddArmor(armorReward);
+            player.AddArmor(ref armorReward); // passive item için ref eklendi
             GameUIController.Instance.PushMessage("Armor +" + armorReward);
         }
         else if (random <= chanceToDropArmor + chanceToDropHealth)
