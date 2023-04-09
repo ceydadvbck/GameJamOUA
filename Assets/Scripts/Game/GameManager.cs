@@ -51,7 +51,7 @@ public class GameManager : MonoSingleton<GameManager>
             {
                 GameObject enemy = meleeEnemiesStack.Pop();
                 enemy.SetActive(true);
-                enemy.transform.position =  new Vector2(spawnPoint[index].position.x + Random.Range(-spawnRange.x, spawnRange.x), spawnPoint[index].position.y + Random.Range(-spawnRange.y, spawnRange.y));
+                enemy.transform.position = new Vector2(spawnPoint[index].position.x + Random.Range(-spawnRange.x, spawnRange.x), spawnPoint[index].position.y + Random.Range(-spawnRange.y, spawnRange.y));
                 enemy.GetComponent<EnemyController>().RestoreHealth(goToAfterSpawn[index]);
             }
         }
@@ -67,21 +67,6 @@ public class GameManager : MonoSingleton<GameManager>
         }
     }
 
-    public void SpawnWeapon()
-    {
-
-    }
-
-    public void SpawnWeaponUpgrade()
-    {
-
-    }
-
-    public void SpawnPlayerUpgrade()
-    {
-
-    }
-
     public void Push(GameObject enemy)
     {
         EnemyType enemyType = enemy.GetComponent<Enemy>().enemyType;
@@ -94,5 +79,16 @@ public class GameManager : MonoSingleton<GameManager>
             rangedEnemiesStack.Push(enemy);
         }
         enemy.gameObject.SetActive(false);
+    }
+
+    public void LoadScene(int index)
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(index);
+    }
+
+    public void Pause()
+    {
+        Time.timeScale = 0;
+        GameUIController.Instance.Pause();
     }
 }

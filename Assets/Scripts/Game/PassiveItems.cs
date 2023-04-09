@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PassiveItems : MonoBehaviour
 {
-    [SerializeField] List<Item> items;
+    [SerializeField] List<Upgrade> items;
     Player player;
 
     private void Awake()
@@ -12,23 +12,23 @@ public class PassiveItems : MonoBehaviour
         player = GetComponent<Player>();
     }
 
-    void Start()
-    {
-
-    }
-
-    public void Equip(Item itemToEquip)
+    public void Equip(Upgrade itemToEquip)
     {
         if (items == null)
         {
-            items = new List<Item>();
+            items = new List<Upgrade>();
         }
         items.Add(itemToEquip);
         itemToEquip.Equip(player);
     }
 
-    public void unEquip(Item itemToUnEquip)
+    public void unEquip(Upgrade itemToUnEquip)
     {
-
+        if (items == null)
+        {
+            return;
+        }
+        items.Remove(itemToUnEquip);
+        itemToUnEquip.UnEquip(player);
     }
 }

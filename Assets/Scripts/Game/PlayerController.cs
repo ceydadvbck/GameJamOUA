@@ -10,11 +10,13 @@ public class PlayerController : MonoSingleton<PlayerController>
     Rigidbody2D rb;
     Player player;
     Animator animator;
+    SpriteRenderer spriteRenderer;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         player = Player.Instance;
+        spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         animator.SetFloat("AnimSpeed", player.moveSpeed / 10);
     }
@@ -35,13 +37,39 @@ public class PlayerController : MonoSingleton<PlayerController>
 
         if (direction == Vector2.zero)
         {
-            animator.SetFloat("Horizontal", 0);
-            animator.SetFloat("Vertical", 0);
+            animator.SetBool("isRunning", false);
             return;
         }
 
-        animator.SetFloat("Horizontal", player.lastDirection == Direction.Right ? 1 : player.lastDirection == Direction.Left ? -1 : 0);
-        animator.SetFloat("Vertical", player.lastDirection == Direction.Up ? 1 : player.lastDirection == Direction.Down ? -1 : 0);
+        animator.SetBool("isRunning", true);
+
+        if (direction.x > 0)
+        {
+            spriteRenderer.flipX = false;
+            return;
+        }
+        else if (direction.x < 0)
+        {
+            spriteRenderer.flipX = true;
+            return;
+        }
+        else
+        {
+            if (direction.y > 0)
+            {
+                spriteRenderer.flipX = false;
+                return;
+            }
+            else if (direction.y < 0)
+            {
+                spriteRenderer.flipX = true;
+                return;
+            }
+            else
+            {
+                return;
+            }
+        }
     }
 
     public void Aim(Vector2 direction)
@@ -93,6 +121,7 @@ public class PlayerController : MonoSingleton<PlayerController>
             DashAttack();
             player.dashEffect.SetActive(true);
             player.dashEffect.transform.position = transform.position;
+            animator.SetTrigger("Dash");
             player.dashEffect.transform.DOScale(0.5f, 0.2f).SetEase(Ease.InElastic).OnComplete(() =>
             {
                 player.dashEffect.SetActive(false);
@@ -146,7 +175,7 @@ public class PlayerController : MonoSingleton<PlayerController>
             {
                 enemy.RemoveHealth(player.dashDamage);
                 Vector2 dir = (enemy.transform.position - transform.position).normalized;
-                enemy.GetComponent<EnemyController>().Knockback(dir, player.dashDistance*4);
+                enemy.GetComponent<EnemyController>().Knockback(dir, player.dashDistance * 4);
             }
         }
     }
