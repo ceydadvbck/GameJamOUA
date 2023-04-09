@@ -10,6 +10,7 @@ public class InputManager : MonoSingleton<InputManager>
     private GameActions input;
     private PlayerController playerController;
     [NonSerialized] public Vector2 movement;
+    [NonSerialized] public Vector2 aim;
 
     void Start()
     {
@@ -19,6 +20,9 @@ public class InputManager : MonoSingleton<InputManager>
         input.Enable();
         input.Character.Movement.performed += ctx => movement = ctx.ReadValue<Vector2>();
         input.Character.Movement.canceled += ctx => movement = Vector2.zero;
+        input.Character.Aim.performed += ctx => aim = ctx.ReadValue<Vector2>();
+        input.Character.Aim.canceled += ctx => aim = Vector2.zero;
+        input.Character.Dash.performed += ctx => playerController.Dash(movement);
         #endregion
     }
 }

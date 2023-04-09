@@ -46,7 +46,7 @@ public enum PlayerUpgradeType
     MovementSpeed
 }
 
-public enum AttackDirection
+public enum Direction
 {
     Up,
     Down,

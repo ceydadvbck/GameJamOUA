@@ -10,8 +10,8 @@ public class GameManager : MonoSingleton<GameManager>
     public GameObject[] weaponPrefabs;
     public GameObject[] weaponUpgradePrefabs;
     public GameObject[] playerUpgradePrefabs;
-    public Transform spawnPoint;
-    public Transform goToAfterSpawn;
+    public Transform[] spawnPoint;
+    public Transform[] goToAfterSpawn;
     public Vector2 spawnRange;
     public float spawnRate;
     private float lastSpawnTime;
@@ -44,14 +44,15 @@ public class GameManager : MonoSingleton<GameManager>
     public void SpawnEnemy()
     {
         EnemyType enemyType = (EnemyType)Random.Range(0, 2);
+        int index = Random.Range(0, spawnPoint.Length);
         if (enemyType == EnemyType.Melee)
         {
             if (meleeEnemiesStack.Count > 0)
             {
                 GameObject enemy = meleeEnemiesStack.Pop();
                 enemy.SetActive(true);
-                enemy.transform.position =  new Vector2(spawnPoint.position.x + Random.Range(-spawnRange.x, spawnRange.x), spawnPoint.position.y + Random.Range(-spawnRange.y, spawnRange.y));
-                enemy.GetComponent<EnemyController>().RestoreHealth();
+                enemy.transform.position =  new Vector2(spawnPoint[index].position.x + Random.Range(-spawnRange.x, spawnRange.x), spawnPoint[index].position.y + Random.Range(-spawnRange.y, spawnRange.y));
+                enemy.GetComponent<EnemyController>().RestoreHealth(goToAfterSpawn[index]);
             }
         }
         else if (enemyType == EnemyType.Ranged)
@@ -60,8 +61,8 @@ public class GameManager : MonoSingleton<GameManager>
             {
                 GameObject enemy = rangedEnemiesStack.Pop();
                 enemy.gameObject.SetActive(true);
-                enemy.transform.position = new Vector2(spawnPoint.position.x + Random.Range(-spawnRange.x, spawnRange.x), spawnPoint.position.y + Random.Range(-spawnRange.y, spawnRange.y));
-                enemy.GetComponent<EnemyController>().RestoreHealth();
+                enemy.transform.position = new Vector2(spawnPoint[index].position.x + Random.Range(-spawnRange.x, spawnRange.x), spawnPoint[index].position.y + Random.Range(-spawnRange.y, spawnRange.y));
+                enemy.GetComponent<EnemyController>().RestoreHealth(goToAfterSpawn[index]);
             }
         }
     }

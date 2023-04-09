@@ -12,9 +12,13 @@ public class Player : MonoSingleton<Player>
     public int maxArmor;
     public int currentArmor;
     public int coin;
+    public int dashAmount;
+    public float dashDistance;
+    public bool dashCooldown;
+    public float dashCooldownTime;
     [NonSerialized] public List<Weapon> weapons;
-    public AttackDirection lastDirection; //Karakterin yöneldiği son yönü PlayerController'ın Move fonksiyonu ile veriyoruz. Attack yaparken Weapon sınıfı bu değeri direkt çekip yön belirlemek için kullanıyor.
-
+    public Direction lastDirection; //Karakterin yöneldiği son yönü PlayerController'ın Move fonksiyonu ile veriyoruz.
+    public Direction lastAttackDirection; //Karakterin son saldırı yönü. Attack fonksiyonu içinde kullanılıyor.
     public void Start()
     {
         weapons = new List<Weapon>();

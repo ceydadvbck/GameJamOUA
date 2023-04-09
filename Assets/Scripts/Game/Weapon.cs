@@ -43,16 +43,17 @@ public class Weapon : MonoBehaviour
             if (Time.time - lastAttackTime >= attackSpeed)
             {
                 isAttacking = true;
-                Attack(player.lastDirection);
+                Attack(player.lastAttackDirection);
             }
         }
     }
 
-    public void Attack(AttackDirection attackDirection)
+    public void Attack(Direction attackDirection)
     {
         if (weaponType == WeaponType.Melee)
         {
-            if (attackDirection == AttackDirection.Up)
+            int index = (int)attackDirection;
+            /*if (attackDirection == Direction.Up)
             {
                 weapons[0].SetActive(true);
                 weapons[0].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
@@ -65,7 +66,7 @@ public class Weapon : MonoBehaviour
                     });
                 });
             }
-            else if (attackDirection == AttackDirection.Down)
+            else if (attackDirection == Direction.Down)
             {
                 weapons[1].SetActive(true);
                 weapons[1].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
@@ -78,7 +79,7 @@ public class Weapon : MonoBehaviour
                     });
                 });
             }
-            else if (attackDirection == AttackDirection.Left)
+            else if (attackDirection == Direction.Left)
             {
                 weapons[2].SetActive(true);
                 weapons[2].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
@@ -91,7 +92,7 @@ public class Weapon : MonoBehaviour
                     });
                 });
             }
-            else if (attackDirection == AttackDirection.Right)
+            else if (attackDirection == Direction.Right)
             {
                 weapons[3].SetActive(true);
                 weapons[3].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
@@ -103,26 +104,37 @@ public class Weapon : MonoBehaviour
                         weapons[3].SetActive(false);
                     });
                 });
-            }
+            }*/
+            weapons[index].SetActive(true);
+            weapons[index].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+            {
+                weapons[index].transform.DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
+                {
+                    isAttacking = false;
+                    lastAttackTime = Time.time;
+                    weapons[index].SetActive(false);
+                });
+            });
+
         }
         else if (weaponType == WeaponType.Ranged)
         {
             if (weapons.Length < 4)
                 return;
 
-            if (attackDirection == AttackDirection.Up)
+            if (attackDirection == Direction.Up)
             {
                 GameObject.Instantiate(weapons[0], transform.position, Quaternion.identity).GetComponent<RangedWeapon>().SetNewAttack(this, Vector2.up, projectileSpeed, damage, range);
             }
-            else if (attackDirection == AttackDirection.Down)
+            else if (attackDirection == Direction.Down)
             {
                 GameObject.Instantiate(weapons[1], transform.position, Quaternion.identity).GetComponent<RangedWeapon>().SetNewAttack(this, Vector2.down, projectileSpeed, damage, range);
             }
-            else if (attackDirection == AttackDirection.Left)
+            else if (attackDirection == Direction.Left)
             {
                 GameObject.Instantiate(weapons[2], transform.position, Quaternion.identity).GetComponent<RangedWeapon>().SetNewAttack(this, Vector2.left, projectileSpeed, damage, range);
             }
-            else if (attackDirection == AttackDirection.Right)
+            else if (attackDirection == Direction.Right)
             {
                 GameObject.Instantiate(weapons[3], transform.position, Quaternion.identity).GetComponent<RangedWeapon>().SetNewAttack(this, Vector2.right, projectileSpeed, damage, range);
             }

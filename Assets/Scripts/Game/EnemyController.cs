@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour
     private bool isAttacking;
     private Coroutine attackCoroutine = null;
     private bool justCreated = true;
+    private Transform goToAfterSpawn;
 
     public void Awake()
     {
@@ -25,13 +26,13 @@ public class EnemyController : MonoBehaviour
     {
         if (justCreated)
         {
-            distanceToPlayer = Vector2.Distance(transform.position, GameManager.Instance.goToAfterSpawn.position);
+            distanceToPlayer = Vector2.Distance(transform.position, goToAfterSpawn.position);
             if (distanceToPlayer <= 1)
             {
                 justCreated = false;
                 return;
             }
-            Move((GameManager.Instance.goToAfterSpawn.position - transform.position).normalized);
+            Move((goToAfterSpawn.position - transform.position).normalized);
             return;
         }
 
@@ -69,9 +70,10 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public void RestoreHealth()
+    public void RestoreHealth(Transform goToAfterSpawn)
     {
         enemy.health = 100;
+        this.goToAfterSpawn = goToAfterSpawn;
         justCreated = true;
     }
 }
