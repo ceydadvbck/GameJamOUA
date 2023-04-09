@@ -34,6 +34,7 @@ public class Weapon : MonoBehaviour
                 weapons[i].SetActive(false);
             }
         }
+        player.currentWeapon = weaponType;
     }
 
     public void Update()
@@ -53,58 +54,6 @@ public class Weapon : MonoBehaviour
         if (weaponType == WeaponType.Melee)
         {
             int index = (int)attackDirection;
-            /*if (attackDirection == Direction.Up)
-            {
-                weapons[0].SetActive(true);
-                weapons[0].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                {
-                    weapons[0].transform.DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                    {
-                        isAttacking = false;
-                        lastAttackTime = Time.time;
-                        weapons[0].SetActive(false);
-                    });
-                });
-            }
-            else if (attackDirection == Direction.Down)
-            {
-                weapons[1].SetActive(true);
-                weapons[1].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                {
-                    weapons[1].transform.DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                    {
-                        isAttacking = false;
-                        lastAttackTime = Time.time;
-                        weapons[1].SetActive(false);
-                    });
-                });
-            }
-            else if (attackDirection == Direction.Left)
-            {
-                weapons[2].SetActive(true);
-                weapons[2].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                {
-                    weapons[2].transform.DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                    {
-                        isAttacking = false;
-                        lastAttackTime = Time.time;
-                        weapons[2].SetActive(false);
-                    });
-                });
-            }
-            else if (attackDirection == Direction.Right)
-            {
-                weapons[3].SetActive(true);
-                weapons[3].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                {
-                    weapons[3].transform.DOScale(Vector3.zero, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
-                    {
-                        isAttacking = false;
-                        lastAttackTime = Time.time;
-                        weapons[3].SetActive(false);
-                    });
-                });
-            }*/
             weapons[index].SetActive(true);
             weapons[index].transform.DOScale(Vector3.one, animationDuration * 0.5f).SetEase(attackEase).OnComplete(() =>
             {

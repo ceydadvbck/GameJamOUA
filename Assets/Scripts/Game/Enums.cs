@@ -22,8 +22,7 @@ public enum ItemType
     Health,
     Weapon,
     Armor,
-    Upgrade,
-    Coin
+    Upgrade
 }
 
 public enum WeaponType

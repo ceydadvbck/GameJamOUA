@@ -16,6 +16,7 @@ public class PlayerController : MonoSingleton<PlayerController>
         rb = GetComponent<Rigidbody2D>();
         player = Player.Instance;
         animator = GetComponent<Animator>();
+        animator.SetFloat("AnimSpeed", player.moveSpeed / 10);
     }
 
     void Update()
@@ -26,7 +27,7 @@ public class PlayerController : MonoSingleton<PlayerController>
 
     public void Move(Vector2 direction)
     {
-        rb.velocity = direction * player.moveSpeed * Time.deltaTime;
+        rb.velocity = direction * player.moveSpeed;
         player.lastDirection = GetDirection(direction);
 
         if (animator == null)
@@ -80,14 +81,24 @@ public class PlayerController : MonoSingleton<PlayerController>
 
     public void Dash(Vector2 direction)
     {
-        if(player.dashCooldown)
+        if (player.dashCooldown)
             return;
 
         player.dashCooldown = true;
         player.dashAmount = 0;
         StartCoroutine(DashCooldown());
 
-        transform.DOMove(transform.position + (Vector3)direction * player.dashDistance, 0.2f).SetEase(Ease.InElastic);
+        transform.DOMove(transform.position + (Vector3)direction * player.dashDistance, 0.2f).SetEase(Ease.InElastic).OnComplete(() =>
+        {
+            DashAttack();
+            player.dashEffect.SetActive(true);
+            player.dashEffect.transform.position = transform.position;
+            player.dashEffect.transform.DOScale(0.5f, 0.2f).SetEase(Ease.InElastic).OnComplete(() =>
+            {
+                player.dashEffect.SetActive(false);
+                player.dashEffect.transform.localScale = Vector3.one;
+            }).SetDelay(0.5f);
+        });
     }
 
     IEnumerator DashCooldown()
@@ -101,5 +112,42 @@ public class PlayerController : MonoSingleton<PlayerController>
         }
         player.dashCooldown = false;
         player.dashAmount = 100;
+    }
+
+    public void SpecialAttack()
+    {
+        if (player.xpAmount < player.maxXP)
+            return;
+
+        player.xpAmount = 0;
+
+        Collider2D[] hit = Physics2D.OverlapCircleAll(transform.position, player.specialRange);
+
+        foreach (Collider2D c in hit)
+        {
+            Enemy enemy = c.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.RemoveHealth(player.specialDamage);
+                Vector2 dir = (enemy.transform.position - transform.position).normalized;
+                enemy.GetComponent<EnemyController>().Knockback(dir, player.specialKnockback);
+            }
+        }
+    }
+
+    public void DashAttack()
+    {
+        Collider2D[] hit = Physics2D.OverlapCircleAll(transform.position, player.dashDistance);
+
+        foreach (Collider2D c in hit)
+        {
+            Enemy enemy = c.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.RemoveHealth(player.dashDamage);
+                Vector2 dir = (enemy.transform.position - transform.position).normalized;
+                enemy.GetComponent<EnemyController>().Knockback(dir, player.dashDistance*4);
+            }
+        }
     }
 }

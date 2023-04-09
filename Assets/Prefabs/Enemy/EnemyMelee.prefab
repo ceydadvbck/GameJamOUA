@@ -129,7 +129,7 @@ MonoBehaviour:
   attackDistance: 2
   playerDetectionDistance: 10
   range: 0
-  movementSpeed: 500
+  movementSpeed: 5
 --- !u!114 &8415968119434177446
 MonoBehaviour:
   m_ObjectHideFlags: 0

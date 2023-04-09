@@ -11,64 +11,63 @@ public class Player : MonoSingleton<Player>
     public int currentHealth;
     public int maxArmor;
     public int currentArmor;
-    public int coin;
     public int dashAmount;
     public float dashDistance;
     public bool dashCooldown;
     public float dashCooldownTime;
-    [NonSerialized] public List<Weapon> weapons;
+    public int dashDamage;
+    public int xpAmount;
+    public int maxXP;
+    public int specialRange;
+    public int specialDamage;
+    public float specialKnockback;
+    public GameObject dashEffect;
+    public WeaponType currentWeapon;
     public Direction lastDirection; //Karakterin yöneldiği son yönü PlayerController'ın Move fonksiyonu ile veriyoruz.
     public Direction lastAttackDirection; //Karakterin son saldırı yönü. Attack fonksiyonu içinde kullanılıyor.
-    public void Start()
-    {
-        weapons = new List<Weapon>();
-    }
-
-    public void AddWeapon(Weapon weapon)
-    {
-        weapons.Add(weapon);
-        weapons[weapons.Count - 1].transform.SetParent(transform);
-    }
-
-    public void RemoveWeapon(Weapon weapon)
-    {
-        weapons.Remove(weapon);
-    }
-
-    public void AddCoin(int amount)
-    {
-        coin += amount;
-    }
-
-    public void RemoveCoin(int amount)
-    {
-        coin -= amount;
-    }
 
     public void AddHealth(int amount)
     {
+        int tempHealth = currentHealth;
         currentHealth += amount;
         if (currentHealth > maxHealth)
         {
             currentHealth = maxHealth;
+            if (tempHealth != maxHealth)
+            {
+                GameUIController.Instance.PushMessage("Health Full!");
+                GameUIController.Instance.healthMaxedOut();
+            }
         }
     }
 
     public void RemoveHealth(int amount)
     {
+        int tempHealth = currentHealth;
         currentHealth -= amount;
         if (currentHealth < 0)
         {
             currentHealth = 0;
+            if (tempHealth != 0)
+            {
+                GameUIController.Instance.PushMessage("You Died!");
+                //GameManager.Instance.GameOver();
+            }
         }
     }
 
     public void AddArmor(int amount)
     {
+        int tempArmor = currentArmor;
         currentArmor += amount;
         if (currentArmor > maxArmor)
         {
             currentArmor = maxArmor;
+            if (tempArmor != maxArmor)
+            {
+                GameUIController.Instance.PushMessage("Armor Full!");
+                GameUIController.Instance.armorMaxedOut();
+            }
         }
     }
 
@@ -99,5 +98,20 @@ public class Player : MonoSingleton<Player>
     public void RemoveMaxArmor(int amount)
     {
         maxArmor -= amount;
+    }
+
+    public void AddXP(int amount)
+    {
+        int tempXP = xpAmount;
+        xpAmount += amount;
+        if (xpAmount >= maxXP)
+        {
+            xpAmount = maxXP;
+            if (tempXP != maxXP)
+            {
+                GameUIController.Instance.PushMessage("Special Bar Full!");
+                GameUIController.Instance.xpMaxedOut();
+            }
+        }
     }
 }

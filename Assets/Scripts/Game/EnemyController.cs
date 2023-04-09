@@ -14,6 +14,16 @@ public class EnemyController : MonoBehaviour
     private Coroutine attackCoroutine = null;
     private bool justCreated = true;
     private Transform goToAfterSpawn;
+    private int minHealthReward = 0;
+    private int maxHealthReward = 20;
+    private int chanceToDropHealth = 10;
+    private int minXPReward = 0;
+    private int maxXPReward = 20;
+    private int chanceToDropXP = 20;
+    private int minArmorReward = 0;
+    private int maxArmorReward = 20;
+    private int chanceToDropArmor = 5;
+    private bool isKnockedBack = false;
 
     public void Awake()
     {
@@ -24,6 +34,9 @@ public class EnemyController : MonoBehaviour
 
     public void Update()
     {
+        if (isKnockedBack)
+            return;
+
         if (justCreated)
         {
             distanceToPlayer = Vector2.Distance(transform.position, goToAfterSpawn.position);
@@ -58,14 +71,21 @@ public class EnemyController : MonoBehaviour
 
     public void Move(Vector2 direction)
     {
-        rb.velocity = direction * enemy.movementSpeed * Time.deltaTime;
+        rb.velocity = direction * enemy.movementSpeed;
     }
 
     IEnumerator AttackPlayer()
     {
         while (isAttacking)
         {
-            player.RemoveHealth(enemy.damage);
+            if (player.currentArmor > 0)
+            {
+                player.RemoveArmor(enemy.damage);
+            }
+            else
+            {
+                player.RemoveHealth(enemy.damage);
+            }
             yield return new WaitForSeconds(enemy.attackSpeed);
         }
     }
@@ -75,5 +95,44 @@ public class EnemyController : MonoBehaviour
         enemy.health = 100;
         this.goToAfterSpawn = goToAfterSpawn;
         justCreated = true;
+    }
+
+    public void Knockback(Vector2 direction, float force)
+    {
+        if (isKnockedBack)
+            return;
+        isKnockedBack = true;
+        if (gameObject.activeSelf)
+            StartCoroutine(KnockbackCooldown());
+        rb.AddForce(direction * force, ForceMode2D.Impulse);
+    }
+
+    IEnumerator KnockbackCooldown()
+    {
+        yield return new WaitForSeconds(0.5f);
+        isKnockedBack = false;
+    }
+
+    public void DeathReward()
+    {
+        int random = UnityEngine.Random.Range(0, 100);
+        if (random <= chanceToDropArmor)
+        {
+            int armorReward = UnityEngine.Random.Range(minArmorReward, maxArmorReward);
+            player.AddArmor(armorReward);
+            GameUIController.Instance.PushMessage("Armor +" + armorReward);
+        }
+        else if (random <= chanceToDropArmor + chanceToDropHealth)
+        {
+            int healthReward = UnityEngine.Random.Range(minHealthReward, maxHealthReward);
+            player.AddHealth(healthReward);
+            GameUIController.Instance.PushMessage("Health +" + healthReward);
+        }
+        else if (random <= chanceToDropArmor + chanceToDropHealth + chanceToDropXP)
+        {
+            int XPReward = UnityEngine.Random.Range(minXPReward, maxXPReward);
+            player.AddXP(XPReward);
+            GameUIController.Instance.PushMessage("XP +" + XPReward);
+        }
     }
 }

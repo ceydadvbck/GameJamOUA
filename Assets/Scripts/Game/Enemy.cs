@@ -28,6 +28,7 @@ public class Enemy : MonoBehaviour
         if (health <= 0)
         {
             health = 0;
+            GetComponent<EnemyController>().DeathReward();
             GameManager.Instance.Push(gameObject);
         }
     }

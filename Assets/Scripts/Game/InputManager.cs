@@ -23,6 +23,7 @@ public class InputManager : MonoSingleton<InputManager>
         input.Character.Aim.performed += ctx => aim = ctx.ReadValue<Vector2>();
         input.Character.Aim.canceled += ctx => aim = Vector2.zero;
         input.Character.Dash.performed += ctx => playerController.Dash(movement);
+        input.Character.Special.performed += ctx => playerController.SpecialAttack();
         #endregion
     }
 }
