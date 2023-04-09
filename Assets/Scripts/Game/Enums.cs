@@ -10,39 +10,23 @@ public enum EnemyType
     Ranged
 }
 
-public enum ObjectType
-{
-    Player,
-    Enemy,
-    Item,
-}
-
-public enum ItemType
-{
-    Health,
-    Weapon,
-    Armor,
-    Upgrade
-}
-
 public enum WeaponType
 {
     Melee,
     Ranged
 }
 
-public enum WeaponUpgradeType
+public enum UpgradeType
 {
-    Damage,
-    AttackSpeed,
-    Range,
-    ProjectileSpeed
-}
-
-public enum PlayerUpgradeType
-{
-    Health,
-    MovementSpeed
+    WeaponDamage,
+    WeaponAttackSpeed,
+    WeaponRange,
+    WeaponProjectileSpeed,
+    PlayerMaxHealth,
+    PlayerMaxArmor,
+    PlayerDashRange,
+    PlayerDashDamage,
+    PlayerDashCooldown,
 }
 
 public enum Direction

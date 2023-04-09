@@ -103,6 +103,36 @@ public class Player : MonoSingleton<Player>
         maxArmor -= amount;
     }
 
+    public void AddDashRange(int amount)
+    {
+        dashDistance += amount;
+    }
+
+    public void RemoveDashRange(int amount)
+    {
+        dashDistance -= amount;
+    }
+
+    public void AddDashDamage(int amount)
+    {
+        dashDamage += amount;
+    }
+
+    public void RemoveDashDamage(int amount)
+    {
+        dashDamage -= amount;
+    }
+
+    public void IncreaseDashCooldown(int amount)
+    {
+        dashCooldownTime -= amount;
+    }
+
+    public void DecreaseDashCooldown(int amount)
+    {
+        dashCooldownTime += amount;
+    }
+
     public void AddXP(int amount)
     {
         int tempXP = xpAmount;
@@ -115,6 +145,78 @@ public class Player : MonoSingleton<Player>
                 GameUIController.Instance.PushMessage("Special Bar Full!");
                 GameUIController.Instance.xpMaxedOut();
             }
+        }
+    }
+
+    public void AddWeaponDamage(int amount)
+    {
+        Weapon[] weapons = GetComponentsInChildren<Weapon>();
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.damage += amount;
+        }
+    }
+
+    public void RemoveWeaponDamage(int amount)
+    {
+        Weapon[] weapons = GetComponentsInChildren<Weapon>();
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.damage -= amount;
+        }
+    }
+
+    public void AddWeaponAttackSpeed(int amount)
+    {
+        Weapon[] weapons = GetComponentsInChildren<Weapon>();
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.attackSpeed += amount;
+        }
+    }
+
+    public void RemoveWeaponAttackSpeed(int amount)
+    {
+        Weapon[] weapons = GetComponentsInChildren<Weapon>();
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.attackSpeed -= amount;
+        }
+    }
+
+    public void AddWeaponRange(int amount)
+    {
+        Weapon[] weapons = GetComponentsInChildren<Weapon>();
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.range += amount;
+        }
+    }
+
+    public void RemoveWeaponRange(int amount)
+    {
+        Weapon[] weapons = GetComponentsInChildren<Weapon>();
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.range -= amount;
+        }
+    }
+
+    public void AddWeaponProjectileSpeed(int amount)
+    {
+        Weapon[] weapons = GetComponentsInChildren<Weapon>();
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.projectileSpeed += amount;
+        }
+    }
+
+    public void RemoveWeaponProjectileSpeed(int amount)
+    {
+        Weapon[] weapons = GetComponentsInChildren<Weapon>();
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.projectileSpeed -= amount;
         }
     }
 }

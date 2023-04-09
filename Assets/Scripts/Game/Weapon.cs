@@ -92,26 +92,6 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    public void Upgrade(WeaponUpgrade weaponUpgrade)
-    {
-        if (weaponUpgrade.weaponUpgradeType == WeaponUpgradeType.Damage)
-        {
-            damage += (int)weaponUpgrade.value;
-        }
-        else if (weaponUpgrade.weaponUpgradeType == WeaponUpgradeType.AttackSpeed)
-        {
-            attackSpeed += weaponUpgrade.value;
-        }
-        else if (weaponUpgrade.weaponUpgradeType == WeaponUpgradeType.Range)
-        {
-            range += weaponUpgrade.value;
-        }
-        else if (weaponUpgrade.weaponUpgradeType == WeaponUpgradeType.ProjectileSpeed)
-        {
-            projectileSpeed += weaponUpgrade.value;
-        }
-    }
-
     public void Activate()
     {
         isActivated = true;
