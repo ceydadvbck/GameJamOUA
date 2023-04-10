@@ -81,17 +81,6 @@ public class GameManager : MonoSingleton<GameManager>
         }
     }
 
-    IEnumerator AudioFadeOut(AudioSource audioSource, float FadeTime, int index = 0)
-    {
-        while (audioSource.volume > 0)
-        {
-            audioSource.volume -= Time.deltaTime / FadeTime;
-            yield return null;
-        }
-        audioSource.Stop();
-        UnityEngine.SceneManagement.SceneManager.LoadScene(index);
-    }
-
     public void SpawnEnemy()
     {
         EnemyType enemyType = (EnemyType)Random.Range(0, 2);
@@ -137,12 +126,7 @@ public class GameManager : MonoSingleton<GameManager>
 
     public void LoadScene(int index)
     {
-        AudioSource[] audioSources = FindObjectsOfType<AudioSource>();
-        foreach (AudioSource audioSource in audioSources)
-        {
-            audioSource.volume = 0;
-            StartCoroutine(AudioFadeOut(audioSource, 1, index));
-        }
+        UnityEngine.SceneManagement.SceneManager.LoadScene(index);
     }
 
     public int GetScene()
