@@ -8,11 +8,14 @@ using UnityEngine.EventSystems;
 
 public class GameUIController : MonoSingleton<GameUIController>
 {
+    public bool isThisLastLevel = false;
     //Menu Items
     public MenuItem[] PauseMenuItems;
     public MenuItem[] PopUpQuitMenuItems;
     public MenuItem[] PopUpMainMenuItems;
     public MenuItem[] UpgradeMenuItems;
+    public MenuItem[] GameOverMenuItems;
+    public MenuItem[] PopUpStoryMenuItems;
 
     //Item Settings
     public float itemRevealDuration = 0.5f; //The total duration of the reveal animation for the items in the main menu
@@ -34,6 +37,8 @@ public class GameUIController : MonoSingleton<GameUIController>
     private Sequence popUpMainMenuSequence; //Reveals the items in the pop up menu
     private Sequence popUpQuitSequence; //Reveals the items in the pop up menu
     private Sequence upgradeMenuSequence; //Reveals the items in the upgrade menu
+    private Sequence gameOverMenuSequence; //Reveals the items in the game over menu
+    private Sequence popUpStorySequence; //Reveals the items in the story menu
     private int currentItemIndex = 0;
     private GameMenuType currentMenu;
     private MenuItem[][] menuItems;
@@ -55,11 +60,13 @@ public class GameUIController : MonoSingleton<GameUIController>
         player = Player.Instance;
         messageText.text = "";
         #region Initialize Menu Items
-        menuItems = new MenuItem[4][];
+        menuItems = new MenuItem[6][];
         menuItems[0] = PauseMenuItems;
         menuItems[1] = PopUpQuitMenuItems;
         menuItems[2] = PopUpMainMenuItems;
         menuItems[3] = UpgradeMenuItems;
+        menuItems[4] = GameOverMenuItems;
+        menuItems[5] = PopUpStoryMenuItems;
         #endregion
         #region Initialize Pause Menu
         pauseMenuSequence = DOTween.Sequence();
@@ -119,9 +126,47 @@ public class GameUIController : MonoSingleton<GameUIController>
             SequenceSetupPopUp(upgradeMenuSequence, item.rectTransform, itemRevealDuration / UpgradeMenuItems.Length);
         }
 
-        UpgradeMenuItems[1].GetComponentInChildren<TextMeshProUGUI>().text = GameManager.Instance.activeLevelRewards[0].Name;
-        UpgradeMenuItems[2].GetComponentInChildren<TextMeshProUGUI>().text = GameManager.Instance.activeLevelRewards[1].Name;
+        if (isThisLastLevel)
+        {
+            UpgradeMenuItems[1].GetComponentInChildren<TextMeshProUGUI>().text = "Main Menu";
+            UpgradeMenuItems[2].GetComponentInChildren<TextMeshProUGUI>().text = "Quit";
+        }
+        else
+        {
+            UpgradeMenuItems[1].GetComponentInChildren<TextMeshProUGUI>().text = GameManager.Instance.activeLevelRewards[0].Name;
+            UpgradeMenuItems[2].GetComponentInChildren<TextMeshProUGUI>().text = GameManager.Instance.activeLevelRewards[1].Name;
+        }
         upgradeMenuSequence.Pause();
+        #endregion
+
+        #region Initialize Game Over Menu
+        gameOverMenuSequence = DOTween.Sequence();
+        gameOverMenuSequence.SetAutoKill(false);
+        SequenceSetupPopUp(gameOverMenuSequence, GameOverMenuItems[0].rectTransform.parent.GetComponent<RectTransform>(), itemRevealDuration / GameOverMenuItems.Length);
+        foreach (MenuItem item in GameOverMenuItems)
+        {
+            if (item.itemType != MenuItemType.NonInteractable)
+                AddHoverEvents(item);
+
+            item.AssignEvents();
+            SequenceSetupPopUp(gameOverMenuSequence, item.rectTransform, itemRevealDuration / GameOverMenuItems.Length);
+        }
+        gameOverMenuSequence.Pause();
+        #endregion
+
+        #region Initialize Pop Up Story Menu
+        popUpStorySequence = DOTween.Sequence();
+        popUpStorySequence.SetAutoKill(false);
+        SequenceSetupPopUp(popUpStorySequence, PopUpStoryMenuItems[0].rectTransform.parent.GetComponent<RectTransform>(), itemRevealDuration / PopUpStoryMenuItems.Length);
+        foreach (MenuItem item in PopUpStoryMenuItems)
+        {
+            if (item.itemType != MenuItemType.NonInteractable)
+                AddHoverEvents(item);
+
+            item.AssignEvents();
+            SequenceSetupPopUp(popUpStorySequence, item.rectTransform, itemRevealDuration / PopUpStoryMenuItems.Length);
+        }
+        popUpStorySequence.Pause();
         #endregion
 
         #region Fade In
@@ -129,6 +174,9 @@ public class GameUIController : MonoSingleton<GameUIController>
         fadeImageCanvasGroup.alpha = 1;
         fadeImageCanvasGroup.DOFade(0f, fadeDuration).SetEase(fadeEase).OnComplete(() => fadeImageCanvasGroup.gameObject.SetActive(false));
         #endregion
+
+        popUpStorySequence.Play();
+        GameManager.Instance.Pause(false);
     }
 
     public void Update()
@@ -170,8 +218,6 @@ public class GameUIController : MonoSingleton<GameUIController>
 
     public void MoveSelection(Vector2 direction)
     {
-        Debug.Log("Move Selection");
-        Debug.Log("Current Menu: " + currentMenu);
         int lastIndex = currentItemIndex;
         MenuItem[] menu = menuItems[(int)currentMenu];
         if (direction.y > 0)
@@ -186,8 +232,6 @@ public class GameUIController : MonoSingleton<GameUIController>
                     currentItemIndex = menu.Length - 1;
             }
             MoveSelectionToItem(lastIndex, currentItemIndex);
-            Debug.Log("Last Index: " + lastIndex);
-            Debug.Log("Current Item Index: " + currentItemIndex);
         }
         else if (direction.y < 0)
         {
@@ -201,8 +245,6 @@ public class GameUIController : MonoSingleton<GameUIController>
                     currentItemIndex = 0;
             }
             MoveSelectionToItem(lastIndex, currentItemIndex);
-            Debug.Log("Last Index: " + lastIndex);
-            Debug.Log("Current Item Index: " + currentItemIndex);
         }
     }
 
@@ -265,7 +307,20 @@ public class GameUIController : MonoSingleton<GameUIController>
     public void OnPopUpMainMenuYesClick()
     {
         Time.timeScale = 1f;
-        GameManager.Instance.LoadScene(0);
+        #region Fade Out
+        fadeImageCanvasGroup.gameObject.SetActive(true);
+        fadeImageCanvasGroup.alpha = 0;
+        fadeImageCanvasGroup.DOFade(1f, fadeDuration).SetEase(fadeEase).OnComplete(() =>
+        {
+            GameManager.Instance.LoadScene(0);
+        });
+        #endregion
+    }
+
+    public void OnPopUpStoryMenuClick()
+    {
+        ShowHidePopUpStoryMenu(false);
+        GameManager.Instance.Resume();
     }
 
     public void OnPopUpMainMenuNoClick()
@@ -296,6 +351,7 @@ public class GameUIController : MonoSingleton<GameUIController>
 
     public void NextLevelSwitch()
     {
+        player.Save();
         #region Fade Out
         fadeImageCanvasGroup.gameObject.SetActive(true);
         fadeImageCanvasGroup.alpha = 0;
@@ -380,6 +436,43 @@ public class GameUIController : MonoSingleton<GameUIController>
         }
     }
 
+    void ShowHideGameOverMenu(bool show)
+    {
+        if (show)
+        {
+            gameOverMenuSequence.timeScale = 1f;
+            gameOverMenuSequence.PlayForward();
+            currentItemIndex = 0;
+            currentMenu = GameMenuType.GameOverMenu;
+        }
+        else
+        {
+            gameOverMenuSequence.timeScale *= (itemRevealDuration / itemHideDuration);
+            gameOverMenuSequence.PlayBackwards();
+        }
+    }
+
+    void ShowHidePopUpStoryMenu(bool show)
+    {
+        if (show)
+        {
+            popUpStorySequence.timeScale = 1f;
+            popUpStorySequence.PlayForward();
+            currentItemIndex = 0;
+            currentMenu = GameMenuType.PopUpStoryMenu;
+        }
+        else
+        {
+            popUpStorySequence.timeScale *= (itemRevealDuration / itemHideDuration);
+            popUpStorySequence.PlayBackwards();
+        }
+    }
+
+    public void GameOver()
+    {
+        ShowHideGameOverMenu(true);
+    }
+
     public void Pause()
     {
         ShowHidePauseMenu(true);
@@ -389,7 +482,7 @@ public class GameUIController : MonoSingleton<GameUIController>
     public void PushMessage(string message, bool isStatic = false)
     {
         messageText.text = message;
-        if(!isStatic)
+        if (!isStatic)
             messageText.DOFade(1f, 0.1f).onComplete += () => messageText.DOFade(0f, 0.1f).SetDelay(0.5f);
         else
             messageText.DOFade(1f, 0.1f).SetDelay(0.5f);

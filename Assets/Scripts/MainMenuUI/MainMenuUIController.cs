@@ -14,6 +14,8 @@ public class MainMenuUIController : MonoSingleton<MainMenuUIController>
     public MenuItem[] PopUpSaveMenuItems;
     public MenuItem[] PopUpQuitMenuItems;
     public MenuItem[] CreditsMenuItems;
+    public MenuItem[] PopUpWeaponMenuItems;
+    public MenuItem[] PopUpHowToPlayMenuItems;
 
     //Item Settings
     public float itemRevealDuration = 0.5f; //The total duration of the reveal animation for the items in the main menu
@@ -37,12 +39,18 @@ public class MainMenuUIController : MonoSingleton<MainMenuUIController>
     public RectTransform[] gamepadPrompts;
     public RectTransform[] keyboardPrompts;
 
+    //Audio Clips
+    public AudioClip itemSwitchClip;
+    public AudioClip itemSelectClip;
+
     //Private Variables
     private Sequence mainMenuSequence; //Reveals the items in the main menu
     private Sequence settingsMenuSequence; //Reveals the items in the settings menu
     private Sequence popUpSaveSequence; //Reveals the items in the pop up menu
     private Sequence popUpQuitSequence; //Reveals the items in the pop up menu
     private Sequence creditsMenuSequence; //Reveals the items in the credits menu
+    private Sequence popUpWeaponSequence; //Reveals the items in the pop up menu
+    private Sequence popUpHowToPlaySequence; //Reveals the items in the pop up menu
     private int currentItemIndex = 0;
     private MenuType currentMenu = MenuType.MainMenu;
     private MenuItem[][] menuItems;
@@ -52,12 +60,14 @@ public class MainMenuUIController : MonoSingleton<MainMenuUIController>
         screenSize = new Vector2(Screen.width, Screen.height);
 
         #region Initialize Main Menu Items
-        menuItems = new MenuItem[5][];
+        menuItems = new MenuItem[7][];
         menuItems[0] = MainMenuItems;
         menuItems[1] = SettingsMenuItems;
         menuItems[2] = PopUpSaveMenuItems;
         menuItems[3] = PopUpQuitMenuItems;
         menuItems[4] = CreditsMenuItems;
+        menuItems[5] = PopUpWeaponMenuItems;
+        menuItems[6] = PopUpHowToPlayMenuItems;
         mainMenuSequence = DOTween.Sequence();
         mainMenuSequence.SetAutoKill(false);
         foreach (MenuItem item in MainMenuItems)
@@ -135,6 +145,38 @@ public class MainMenuUIController : MonoSingleton<MainMenuUIController>
             SequenceSetupPopUp(creditsMenuSequence, item.rectTransform);
         }
         creditsMenuSequence.Pause();
+        #endregion
+
+        #region Initialize Pop Up Weapon Menu Items
+        popUpWeaponSequence = DOTween.Sequence();
+        popUpWeaponSequence.SetAutoKill(false);
+        SequenceSetupPopUp(popUpWeaponSequence, PopUpWeaponMenuItems[0].rectTransform.parent.GetComponent<RectTransform>());
+        foreach (MenuItem item in PopUpWeaponMenuItems)
+        {
+            if (item.itemType != MenuItemType.NonInteractable)
+                AddHoverEvents(item);
+
+            item.AssignEvents();
+
+            SequenceSetupPopUp(popUpWeaponSequence, item.rectTransform);
+        }
+        popUpWeaponSequence.Pause();
+        #endregion
+
+        #region Initialize Pop Up How To Play Menu Items
+        popUpHowToPlaySequence = DOTween.Sequence();
+        popUpHowToPlaySequence.SetAutoKill(false);
+        SequenceSetupPopUp(popUpHowToPlaySequence, PopUpHowToPlayMenuItems[0].rectTransform.parent.GetComponent<RectTransform>());
+        foreach (MenuItem item in PopUpHowToPlayMenuItems)
+        {
+            if (item.itemType != MenuItemType.NonInteractable)
+                AddHoverEvents(item);
+
+            item.AssignEvents();
+
+            SequenceSetupPopUp(popUpHowToPlaySequence, item.rectTransform);
+        }
+        popUpHowToPlaySequence.Pause();
         #endregion
 
         #region Fade In
@@ -298,6 +340,12 @@ public class MainMenuUIController : MonoSingleton<MainMenuUIController>
         text.text = GameManager.Instance.GetQualityName();
     }
 
+    public void OnNewGameClick()
+    {
+        ShowHideMainMenu(false);
+        ShowHidePopUpWeaponMenu(true);
+    }
+
     public void OnSettingsClick()
     {
         ShowHideMainMenu(false);
@@ -310,6 +358,18 @@ public class MainMenuUIController : MonoSingleton<MainMenuUIController>
         ShowHideSettingsMenu(false);
         //ShowHideMainMenu(true);
         //currentMenu = MenuType.MainMenu;
+    }
+
+    public void OnHowToPlayClick()
+    {
+        ShowHideMainMenu(false);
+        ShowHideHowToPlayMenu(true);
+    }
+
+    public void OnHowToPlayBackClick()
+    {
+        ShowHideHowToPlayMenu(false);
+        ShowHideMainMenu(true);
     }
 
     public void OnPopUpSaveYesClick()
@@ -365,6 +425,12 @@ public class MainMenuUIController : MonoSingleton<MainMenuUIController>
     {
         ShowHideMainMenu(false);
         ShowHidePopUpQuitMenu(true);
+    }
+
+    public void OnSelectWeapon(int index)
+    {
+        PlayerPrefs.SetInt("CurrentWeapon", index);
+        GameManager.Instance.LoadScene(GameManager.Instance.GetScene() + 1);
     }
     #endregion
 
@@ -498,6 +564,38 @@ public class MainMenuUIController : MonoSingleton<MainMenuUIController>
         {
             creditsMenuSequence.timeScale *= (itemRevealDuration / itemHideDuration);
             creditsMenuSequence.PlayBackwards();
+        }
+    }
+
+    void ShowHidePopUpWeaponMenu(bool show)
+    {
+        if (show)
+        {
+            popUpWeaponSequence.timeScale = 1f;
+            popUpWeaponSequence.PlayForward();
+            currentItemIndex = 0;
+            currentMenu = MenuType.PopUpWeaponMenu;
+        }
+        else
+        {
+            popUpWeaponSequence.timeScale *= (itemRevealDuration / itemHideDuration);
+            popUpWeaponSequence.PlayBackwards();
+        }
+    }
+
+    void ShowHideHowToPlayMenu(bool show)
+    {
+        if (show)
+        {
+            popUpHowToPlaySequence.timeScale = 1f;
+            popUpHowToPlaySequence.PlayForward();
+            currentItemIndex = 0;
+            currentMenu = MenuType.PopUpHowToPlayMenu;
+        }
+        else
+        {
+            popUpHowToPlaySequence.timeScale *= (itemRevealDuration / itemHideDuration);
+            popUpHowToPlaySequence.PlayBackwards();
         }
     }
     #endregion

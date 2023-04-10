@@ -7,9 +7,6 @@ public class GameManager : MonoSingleton<GameManager>
     /*Oyunun genel yönetiminin yapıldığı script bu. Düşmanlar için object pooling kullanıyoruz. Maksimum sayıyı belirleyebiliriz.
     Tüm spawn işlemleri bu scriptten çağrılarak yapılacak. Gerekirse fonksiyonları geri dönüş değeri olacak şekilde değiştirebiliriz.*/
     public GameObject[] enemyPrefabs;
-    public GameObject[] weaponPrefabs;
-    public GameObject[] weaponUpgradePrefabs;
-    public GameObject[] playerUpgradePrefabs;
     public Transform[] spawnPoint;
     public Transform[] goToAfterSpawn;
     public Vector2 spawnRange;
@@ -22,8 +19,7 @@ public class GameManager : MonoSingleton<GameManager>
     [System.NonSerialized] public bool isPaused = false;
     public int killedEnemyCountFromStart = 0;
     public Upgrade[] activeLevelRewards;
-    public bool isWin = false;
-    public Transform playerStartPoint;
+    [System.NonSerialized] public bool isWin = false;
 
     void Awake()
     {
@@ -31,6 +27,7 @@ public class GameManager : MonoSingleton<GameManager>
     }
     public void Start()
     {
+        FindObjectOfType<Cinemachine.CinemachineVirtualCamera>().Follow = Player.Instance.transform;
         for (int i = 0; i < maxEnemyCountByType; i++)
         {
             Transform melee = Instantiate(enemyPrefabs[0], transform).GetComponent<Transform>();
@@ -40,12 +37,25 @@ public class GameManager : MonoSingleton<GameManager>
             rangedEnemiesStack.Push(ranged.gameObject);
             ranged.gameObject.SetActive(false);
         }
+        AudioSource[] audioSources = FindObjectsOfType<AudioSource>();
+        foreach (AudioSource audioSource in audioSources)
+        {
+            audioSource.volume = 0;
+            StartCoroutine(AudioFadeIn(audioSource, 1));
+        }
     }
 
     public void Update()
     {
-        if(isWin)
+        if (isWin)
+        {
+            Transform[] childs = GetComponentsInChildren<Transform>();
+            foreach (Transform child in childs)
+            {
+                child.gameObject.SetActive(false);
+            }
             return;
+        }
         if (Time.time - lastSpawnTime > spawnRate)
         {
             SpawnEnemy();
@@ -60,10 +70,34 @@ public class GameManager : MonoSingleton<GameManager>
         }
     }
 
+    IEnumerator AudioFadeIn(AudioSource audioSource, float FadeTime)
+    {
+        audioSource.volume = 0;
+        audioSource.Play();
+        while (audioSource.volume < 1)
+        {
+            audioSource.volume += Time.deltaTime / FadeTime;
+            yield return null;
+        }
+    }
+
+    IEnumerator AudioFadeOut(AudioSource audioSource, float FadeTime, int index = 0)
+    {
+        while (audioSource.volume > 0)
+        {
+            audioSource.volume -= Time.deltaTime / FadeTime;
+            yield return null;
+        }
+        audioSource.Stop();
+        UnityEngine.SceneManagement.SceneManager.LoadScene(index);
+    }
+
     public void SpawnEnemy()
     {
         EnemyType enemyType = (EnemyType)Random.Range(0, 2);
         int index = Random.Range(0, spawnPoint.Length);
+        if (spawnPoint.Length == 1)
+            index = 0;
         if (enemyType == EnemyType.Melee)
         {
             if (meleeEnemiesStack.Count > 0)
@@ -103,7 +137,12 @@ public class GameManager : MonoSingleton<GameManager>
 
     public void LoadScene(int index)
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(index);
+        AudioSource[] audioSources = FindObjectsOfType<AudioSource>();
+        foreach (AudioSource audioSource in audioSources)
+        {
+            audioSource.volume = 0;
+            StartCoroutine(AudioFadeOut(audioSource, 1, index));
+        }
     }
 
     public int GetScene()
@@ -111,16 +150,24 @@ public class GameManager : MonoSingleton<GameManager>
         return UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
     }
 
-    public void Pause()
+    public void Pause(bool usePauseMenu = true)
     {
         isPaused = true;
         Time.timeScale = 0;
-        GameUIController.Instance.Pause();
+        if (usePauseMenu)
+            GameUIController.Instance.Pause();
     }
 
     public void Resume()
     {
         isPaused = false;
         Time.timeScale = 1;
+    }
+
+    public void GameOver()
+    {
+        isPaused = true;
+        Time.timeScale = 0;
+        GameUIController.Instance.GameOver();
     }
 }

@@ -19,6 +19,18 @@ public class PlayerController : MonoSingleton<PlayerController>
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         animator.SetFloat("AnimSpeed", player.moveSpeed / 10);
+        Weapon[] weapons = GetComponentsInChildren<Weapon>();
+        foreach (Weapon weapon in weapons)
+        {
+            if (weapon.weaponType == player.currentWeapon)
+            {
+                weapon.gameObject.SetActive(true);
+            }
+            else
+            {
+                weapon.gameObject.SetActive(false);
+            }
+        }
     }
 
     void Update()

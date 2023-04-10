@@ -26,6 +26,53 @@ public class Player : MonoSingleton<Player>
     public Direction lastDirection; //Karakterin yöneldiği son yönü PlayerController'ın Move fonksiyonu ile veriyoruz.
     public Direction lastAttackDirection; //Karakterin son saldırı yönü. Attack fonksiyonu içinde kullanılıyor.
 
+    public void Save()
+    {
+        PlayerPrefs.SetFloat("MoveSpeed", (int)moveSpeed);
+        PlayerPrefs.SetInt("MaxHealth", maxHealth);
+        PlayerPrefs.SetInt("CurrentHealth", currentHealth);
+        PlayerPrefs.SetInt("MaxArmor", maxArmor);
+        PlayerPrefs.SetInt("CurrentArmor", currentArmor);
+        PlayerPrefs.SetInt("DashAmount", dashAmount);
+        PlayerPrefs.SetFloat("DashDistance", dashDistance);
+        PlayerPrefs.SetInt("DashDamage", dashDamage);
+        PlayerPrefs.SetInt("XPAmount", xpAmount);
+        PlayerPrefs.SetInt("MaxXP", maxXP);
+        PlayerPrefs.SetInt("SpecialRange", specialRange);
+        PlayerPrefs.SetInt("SpecialDamage", specialDamage);
+        PlayerPrefs.SetFloat("SpecialKnockback", specialKnockback);
+        PlayerPrefs.SetInt("CurrentWeapon", (int)currentWeapon);
+    }
+
+    public void Load()
+    {
+        moveSpeed = PlayerPrefs.GetFloat("MoveSpeed");
+        maxHealth = PlayerPrefs.GetInt("MaxHealth");
+        currentHealth = PlayerPrefs.GetInt("CurrentHealth");
+        maxArmor = PlayerPrefs.GetInt("MaxArmor");
+        currentArmor = PlayerPrefs.GetInt("CurrentArmor");
+        dashAmount = PlayerPrefs.GetInt("DashAmount");
+        dashDistance = PlayerPrefs.GetFloat("DashDistance");
+        dashDamage = PlayerPrefs.GetInt("DashDamage");
+        xpAmount = PlayerPrefs.GetInt("XPAmount");
+        maxXP = PlayerPrefs.GetInt("MaxXP");
+        specialRange = PlayerPrefs.GetInt("SpecialRange");
+        specialDamage = PlayerPrefs.GetInt("SpecialDamage");
+        specialKnockback = PlayerPrefs.GetFloat("SpecialKnockback");
+        currentWeapon = (WeaponType)PlayerPrefs.GetInt("CurrentWeapon");
+    }
+
+    void Awake()
+    {
+        if (GameManager.Instance.GetScene() > 1)
+        {
+            Load();
+        }
+        else
+        {
+            currentWeapon = (WeaponType)PlayerPrefs.GetInt("CurrentWeapon");
+        }
+    }
     public void AddHealth(int amount)
     {
         int tempHealth = currentHealth;
@@ -43,24 +90,18 @@ public class Player : MonoSingleton<Player>
 
     public void RemoveHealth(int amount)
     {
-        AddArmor(ref amount); //S (Passive item sistemi için eklenenler.)
         int tempHealth = currentHealth;
         currentHealth -= amount;
         if (currentHealth < 0)
         {
             currentHealth = 0;
-            if (tempHealth != 0)
-            {
-                GameUIController.Instance.PushMessage("You Died!");
-                //GameManager.Instance.GameOver();
-            }
+            GameUIController.Instance.PushMessage("You Died!");
+            GameManager.Instance.GameOver();
         }
     }
 
-    public void AddArmor(ref int amount) //S (ref ekledim)
+    public void AddArmor(ref int amount)
     {
-        amount -= currentArmor; //S
-        if (amount < 0) { amount = 0; } //S
         int tempArmor = currentArmor;
         currentArmor += amount;
         if (currentArmor > maxArmor)

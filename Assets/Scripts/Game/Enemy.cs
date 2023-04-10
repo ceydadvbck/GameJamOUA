@@ -24,11 +24,13 @@ public class Enemy : MonoBehaviour
 
     public void RemoveHealth(int damage)
     {
+        GetComponent<Animator>().SetTrigger("hurt");
         health -= damage;
         if (health <= 0)
         {
             health = 0;
             GetComponent<EnemyController>().DeathReward();
+            GetComponent<Animator>().SetTrigger("death");
             GameManager.Instance.Push(gameObject);
         }
     }

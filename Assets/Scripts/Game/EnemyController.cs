@@ -9,6 +9,8 @@ public class EnemyController : MonoBehaviour
     Rigidbody2D rb;
     [NonSerialized] public Enemy enemy;
     private Player player;
+    private Animator animator;
+    private SpriteRenderer spriteRenderer;
     private float distanceToPlayer;
     private bool isAttacking;
     private Coroutine attackCoroutine = null;
@@ -30,10 +32,13 @@ public class EnemyController : MonoBehaviour
         player = Player.Instance;
         enemy = GetComponent<Enemy>();
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public void Update()
     {
+
         if (isKnockedBack)
             return;
 
@@ -76,12 +81,15 @@ public class EnemyController : MonoBehaviour
     public void Move(Vector2 direction)
     {
         rb.velocity = direction * enemy.movementSpeed;
+        animator.SetBool("isWalking", true);
+        spriteRenderer.flipX = direction.x < 0;
     }
 
     IEnumerator AttackPlayer()
     {
         while (isAttacking)
         {
+            animator.SetTrigger("attack");
             if (player.currentArmor > 0)
             {
                 player.RemoveArmor(enemy.damage);

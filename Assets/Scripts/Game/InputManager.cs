@@ -33,10 +33,14 @@ public class InputManager : MonoSingleton<InputManager>
         #endregion
     }
 
+    void OnDestroy()
+    {
+        input.Disable();
+    }
+
     #region UI Input Events
     private void Navigation(float UpDown, float LeftRight, InputDevice device = null)
     {
-        Debug.Log("Up Down: " + UpDown + " Left Right: " + LeftRight);
         if (!GameManager.Instance.isPaused)
             return;
         UIController.MoveSelection(new Vector2(LeftRight, UpDown));
