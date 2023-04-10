@@ -14,8 +14,7 @@ public enum MenuType
     SettingsMenu = 1,
     PopUpSaveMenu = 2,
     PopUpQuitMenu = 3,
-    CreditsMenu = 4,
-    None = 5
+    CreditsMenu = 4
 }
 
 public enum GameMenuType
@@ -23,8 +22,7 @@ public enum GameMenuType
     PauseMenu = 0,
     PopUpQuitMenu = 1,
     PopUpMainMenu = 2,
-    UpgradeMenu = 3,
-    None = 4
+    UpgradeMenu = 3
 }
 
 [Serializable]

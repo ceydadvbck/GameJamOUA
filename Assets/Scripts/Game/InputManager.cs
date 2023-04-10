@@ -36,18 +36,25 @@ public class InputManager : MonoSingleton<InputManager>
     #region UI Input Events
     private void Navigation(float UpDown, float LeftRight, InputDevice device = null)
     {
+        Debug.Log("Up Down: " + UpDown + " Left Right: " + LeftRight);
+        if (!GameManager.Instance.isPaused)
+            return;
         UIController.MoveSelection(new Vector2(LeftRight, UpDown));
         //UIController.SetDevicePrompt(device.name.Contains("Controller"));
     }
 
     private void Submit(InputDevice device = null)
     {
+        if (!GameManager.Instance.isPaused)
+            return;
         UIController.Submit();
         //UIController.SetDevicePrompt(device.name.Contains("Controller"));
     }
 
     private void Cancel(InputDevice device = null)
     {
+        if (!GameManager.Instance.isPaused)
+            return;
         UIController.Cancel();
         //UIController.SetDevicePrompt(device.name.Contains("Controller"));
     }

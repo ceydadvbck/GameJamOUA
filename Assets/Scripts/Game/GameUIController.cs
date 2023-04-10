@@ -35,7 +35,7 @@ public class GameUIController : MonoSingleton<GameUIController>
     private Sequence popUpQuitSequence; //Reveals the items in the pop up menu
     private Sequence upgradeMenuSequence; //Reveals the items in the upgrade menu
     private int currentItemIndex = 0;
-    private GameMenuType currentMenu = GameMenuType.None;
+    private GameMenuType currentMenu;
     private MenuItem[][] menuItems;
 
     public RectTransform healthBarParent;
@@ -54,7 +54,6 @@ public class GameUIController : MonoSingleton<GameUIController>
     {
         player = Player.Instance;
         messageText.text = "";
-
         #region Initialize Menu Items
         menuItems = new MenuItem[4][];
         menuItems[0] = PauseMenuItems;
@@ -119,6 +118,9 @@ public class GameUIController : MonoSingleton<GameUIController>
             item.AssignEvents();
             SequenceSetupPopUp(upgradeMenuSequence, item.rectTransform, itemRevealDuration / UpgradeMenuItems.Length);
         }
+
+        UpgradeMenuItems[1].GetComponentInChildren<TextMeshProUGUI>().text = GameManager.Instance.activeLevelRewards[0].Name;
+        UpgradeMenuItems[2].GetComponentInChildren<TextMeshProUGUI>().text = GameManager.Instance.activeLevelRewards[1].Name;
         upgradeMenuSequence.Pause();
         #endregion
 
@@ -168,6 +170,8 @@ public class GameUIController : MonoSingleton<GameUIController>
 
     public void MoveSelection(Vector2 direction)
     {
+        Debug.Log("Move Selection");
+        Debug.Log("Current Menu: " + currentMenu);
         int lastIndex = currentItemIndex;
         MenuItem[] menu = menuItems[(int)currentMenu];
         if (direction.y > 0)
@@ -181,6 +185,9 @@ public class GameUIController : MonoSingleton<GameUIController>
                 if (currentItemIndex < 0)
                     currentItemIndex = menu.Length - 1;
             }
+            MoveSelectionToItem(lastIndex, currentItemIndex);
+            Debug.Log("Last Index: " + lastIndex);
+            Debug.Log("Current Item Index: " + currentItemIndex);
         }
         else if (direction.y < 0)
         {
@@ -193,24 +200,10 @@ public class GameUIController : MonoSingleton<GameUIController>
                 if (currentItemIndex > menu.Length - 1)
                     currentItemIndex = 0;
             }
+            MoveSelectionToItem(lastIndex, currentItemIndex);
+            Debug.Log("Last Index: " + lastIndex);
+            Debug.Log("Current Item Index: " + currentItemIndex);
         }
-        else if (menu[currentItemIndex].itemType == MenuItemType.Selector)
-        {
-            if (direction.x < 0)
-            {
-                menu[currentItemIndex].events[0].Invoke();
-            }
-            else if (direction.x > 0)
-            {
-                menu[currentItemIndex].events[1].Invoke();
-            }
-            return;
-        }
-        else
-        {
-            return;
-        }
-        MoveSelectionToItem(lastIndex, currentItemIndex);
     }
 
     public void MoveSelectionToItem(int lastIndex, int newIndex)
@@ -290,6 +283,27 @@ public class GameUIController : MonoSingleton<GameUIController>
     {
         ShowHidePopUpQuitMenu(false);
         ShowHidePauseMenu(true);
+    }
+
+    public void OnSelectUpgrade(int index)
+    {
+        Upgrade upgrade = GameManager.Instance.activeLevelRewards[index];
+        upgrade.Equip(player);
+        ShowHideUpgradeMenu(false);
+        GameManager.Instance.Resume();
+        PushMessage("Go to the door to next level!");
+    }
+
+    public void NextLevelSwitch()
+    {
+        #region Fade Out
+        fadeImageCanvasGroup.gameObject.SetActive(true);
+        fadeImageCanvasGroup.alpha = 0;
+        fadeImageCanvasGroup.DOFade(1f, fadeDuration).SetEase(fadeEase).OnComplete(() =>
+        {
+            GameManager.Instance.LoadScene(GameManager.Instance.GetScene() + 1);
+        });
+        #endregion
     }
     #endregion
 
@@ -372,10 +386,13 @@ public class GameUIController : MonoSingleton<GameUIController>
     }
     #endregion
 
-    public void PushMessage(string message)
+    public void PushMessage(string message, bool isStatic = false)
     {
         messageText.text = message;
-        messageText.DOFade(1f, 0.1f).onComplete += () => messageText.DOFade(0f, 0.1f).SetDelay(0.5f);
+        if(!isStatic)
+            messageText.DOFade(1f, 0.1f).onComplete += () => messageText.DOFade(0f, 0.1f).SetDelay(0.5f);
+        else
+            messageText.DOFade(1f, 0.1f).SetDelay(0.5f);
     }
 
     public void healthMaxedOut()
@@ -396,5 +413,11 @@ public class GameUIController : MonoSingleton<GameUIController>
     public void xpMaxedOut()
     {
         XPBarParent.DOPunchScale(new Vector3(0.5f, 0.5f, 0.5f), 0.5f, 10, 1f);
+    }
+
+    public void Win()
+    {
+        ShowHideUpgradeMenu(true);
+        PushMessage("You Win!");
     }
 }

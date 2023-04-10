@@ -18,7 +18,17 @@ public class GameManager : MonoSingleton<GameManager>
     public int maxEnemyCountByType;
     public Stack<GameObject> meleeEnemiesStack = new Stack<GameObject>();
     public Stack<GameObject> rangedEnemiesStack = new Stack<GameObject>();
+    public int enemyCountToWin = 2;
+    [System.NonSerialized] public bool isPaused = false;
+    public int killedEnemyCountFromStart = 0;
+    public Upgrade[] activeLevelRewards;
+    public bool isWin = false;
+    public Transform playerStartPoint;
 
+    void Awake()
+    {
+        DG.Tweening.DOTween.SetTweensCapacity(500, 50);
+    }
     public void Start()
     {
         for (int i = 0; i < maxEnemyCountByType; i++)
@@ -34,10 +44,19 @@ public class GameManager : MonoSingleton<GameManager>
 
     public void Update()
     {
+        if(isWin)
+            return;
         if (Time.time - lastSpawnTime > spawnRate)
         {
             SpawnEnemy();
             lastSpawnTime = Time.time;
+        }
+        if (killedEnemyCountFromStart >= enemyCountToWin)
+        {
+            isPaused = true;
+            Time.timeScale = 0;
+            GameUIController.Instance.Win();
+            isWin = true;
         }
     }
 
@@ -79,6 +98,7 @@ public class GameManager : MonoSingleton<GameManager>
             rangedEnemiesStack.Push(enemy);
         }
         enemy.gameObject.SetActive(false);
+        killedEnemyCountFromStart++;
     }
 
     public void LoadScene(int index)
@@ -86,9 +106,21 @@ public class GameManager : MonoSingleton<GameManager>
         UnityEngine.SceneManagement.SceneManager.LoadScene(index);
     }
 
+    public int GetScene()
+    {
+        return UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+    }
+
     public void Pause()
     {
+        isPaused = true;
         Time.timeScale = 0;
         GameUIController.Instance.Pause();
+    }
+
+    public void Resume()
+    {
+        isPaused = false;
+        Time.timeScale = 1;
     }
 }

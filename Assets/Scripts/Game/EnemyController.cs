@@ -67,6 +67,10 @@ public class EnemyController : MonoBehaviour
                     StopCoroutine(attackCoroutine);
             }
         }
+        else
+        {
+            Move((goToAfterSpawn.position - transform.position).normalized);
+        }
     }
 
     public void Move(Vector2 direction)

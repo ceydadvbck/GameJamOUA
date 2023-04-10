@@ -7,7 +7,7 @@ using UnityEngine;
 public class Upgrade : ScriptableObject
 {
     public string Name;
-    UpgradeType upgradeType;
+    public UpgradeType upgradeType;
     public int value;
 
     public void Equip(Player Player)

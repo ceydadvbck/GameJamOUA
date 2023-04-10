@@ -10,7 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18626f96e98b5f64e9862429786378e1, type: 3}
-  m_Name: ArmorUpgrade
+  m_Name: HealthIncrease +25
   m_EditorClassIdentifier: 
-  Name: 
-  currentArmor: 0
+  Name: Health Increase
+  upgradeType: 4
+  value: 25
