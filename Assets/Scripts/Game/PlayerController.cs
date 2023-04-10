@@ -19,16 +19,20 @@ public class PlayerController : MonoSingleton<PlayerController>
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         animator.SetFloat("AnimSpeed", player.moveSpeed / 10);
-        Weapon[] weapons = GetComponentsInChildren<Weapon>();
-        foreach (Weapon weapon in weapons)
+        GameObject[] children = new GameObject[transform.childCount];
+        for (int i = 0; i < transform.childCount; i++)
         {
-            if (weapon.weaponType == player.currentWeapon)
+            children[i] = transform.GetChild(i).gameObject;
+        }
+        foreach (GameObject child in children)
+        {
+            if (child.GetComponent<Weapon>() != null && child.GetComponent<Weapon>().weaponType == player.currentWeapon)
             {
-                weapon.gameObject.SetActive(true);
+                child.SetActive(true);
             }
             else
             {
-                weapon.gameObject.SetActive(false);
+                child.SetActive(false);
             }
         }
     }

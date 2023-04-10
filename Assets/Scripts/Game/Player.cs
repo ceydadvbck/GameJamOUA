@@ -71,6 +71,7 @@ public class Player : MonoSingleton<Player>
         else
         {
             currentWeapon = (WeaponType)PlayerPrefs.GetInt("CurrentWeapon");
+            Debug.Log("Current Weapon: " + currentWeapon);
         }
     }
     public void AddHealth(int amount)
